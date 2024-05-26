@@ -64,6 +64,6 @@ class Application(tk.Tk):
         text_area.pack(fill='both', expand=True)
 
 
-if __name__ == "__main__":
-    app = Application()
-    app.mainloop()
+# if __name__ == "__main__":
+#     app = Application()
+#     app.mainloop()
