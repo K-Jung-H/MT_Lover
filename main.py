@@ -56,14 +56,32 @@ class Application(tk.Tk):
     def create_tab_content(self, tab):
         # Listbox 설정
         listbox_frame = tk.Frame(tab, bg='white')
-        listbox_frame.grid(row=0, column=0, sticky='nsew', padx=5, pady=5)
+        listbox_frame.grid(row=0, column=0, sticky='nsew', padx=20, pady=50)
 
         listbox = tk.Listbox(listbox_frame)
-        listbox.pack(fill='both', expand=True)
+        listbox.pack(side=tk.LEFT, fill='both', expand=True)
+
+        # Scrollbar for the listbox
+        scrollbar = tk.Scrollbar(listbox_frame, orient=tk.VERTICAL)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        scrollbar.config(command=listbox.yview)  # listbox와 scrollbar 연결
+        listbox.config(yscrollcommand=scrollbar.set)  # scrollbar와 listbox 연결
+
+        listbox.insert(tk.END, "Item 1")
+        listbox.insert(tk.END, "Item 1")
+        listbox.insert(tk.END, "Item 1")
+        listbox.insert(tk.END, "Item 1")
+        listbox.insert(tk.END, "Item 1")
+        listbox.insert(tk.END, "Item 1")
+        listbox.insert(tk.END, "Item 1")
+        listbox.insert(tk.END, "Item 1")
+        listbox.insert(tk.END, "Item 1")
+        listbox.insert(tk.END, "Item 1")
+
 
         # 텍스트 출력 프레임 설정
         text_frame = tk.Frame(tab, bg='white')
-        text_frame.grid(row=1, column=0, sticky='nsew', padx=5, pady=5)
+        text_frame.grid(row=1, column=0, sticky='nsew', padx=20, pady=20)
 
         text_area = tk.Text(text_frame)
         text_area.pack(fill='both', expand=True)
