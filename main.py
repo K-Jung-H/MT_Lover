@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+import xml_read
 
 """ asda """
 class Application(tk.Tk):
@@ -13,7 +14,7 @@ class Application(tk.Tk):
         #self.entry = tk.Text(self, height=2)
         self.entry.grid(row=0, column=0, padx=(20,0), pady=40, ipady=8, sticky='ew')
 
-        self.search_button = tk.Button(self, text="검색", font=('Helvetica', 16))
+        self.search_button = tk.Button(self, text="검색", font=('Helvetica', 16), command=self.SIGUN_search)
         self.search_button.grid(row=0, column=1, padx=(0,20), pady=40, sticky='w')
 
         # Apply custom style for Notebook tabs
@@ -54,6 +55,19 @@ class Application(tk.Tk):
         self.grid_rowconfigure(2, weight=1)
 
     def create_tab_content(self, tab):
+        def on_item_select(event):
+            # 현재 선택된 항목의 인덱스 가져오기
+            selected_index = event.widget.curselection()
+
+            # 선택된 항목의 텍스트 가져오기
+            selected_item = event.widget.get(selected_index)
+
+            # 선택된 항목에 대한 처리
+            print("선택된 항목:", selected_item)
+
+            xml_read.MT_data_read()
+
+
         # Listbox 설정
         listbox_frame = tk.Frame(tab, bg='white')
         listbox_frame.grid(row=0, column=0, sticky='nsew', padx=20, pady=50)
@@ -68,15 +82,17 @@ class Application(tk.Tk):
         listbox.config(yscrollcommand=scrollbar.set)  # scrollbar와 listbox 연결
 
         listbox.insert(tk.END, "Item 1")
-        listbox.insert(tk.END, "Item 1")
-        listbox.insert(tk.END, "Item 1")
-        listbox.insert(tk.END, "Item 1")
-        listbox.insert(tk.END, "Item 1")
-        listbox.insert(tk.END, "Item 1")
-        listbox.insert(tk.END, "Item 1")
-        listbox.insert(tk.END, "Item 1")
-        listbox.insert(tk.END, "Item 1")
-        listbox.insert(tk.END, "Item 1")
+        listbox.insert(tk.END, "Item 2")
+        listbox.insert(tk.END, "Item 3")
+        listbox.insert(tk.END, "Item 4")
+        listbox.insert(tk.END, "Item 5")
+        listbox.insert(tk.END, "Item 6")
+        listbox.insert(tk.END, "Item 7")
+        listbox.insert(tk.END, "Item 8")
+        listbox.insert(tk.END, "Item 9")
+        listbox.insert(tk.END, "Item 10")
+
+        #listbox.bind("<<ListboxSelect>>", on_item_select)
 
 
         # 텍스트 출력 프레임 설정
@@ -95,6 +111,11 @@ class Application(tk.Tk):
         tab.grid_columnconfigure(1, weight=1)
         tab.grid_rowconfigure(0, weight=1)
         tab.grid_rowconfigure(1, weight=1)
+
+    def SIGUN_search(self):
+        search_text = self.entry.get()
+        print("검색어:", search_text)
+        xml_read.MT_data_read(search_text)
 
 
 if __name__ == "__main__":
