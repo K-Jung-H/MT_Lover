@@ -5,19 +5,24 @@ from tkinter import ttk
 class Application(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Tkinter Layout with Tabs Example")
-        self.geometry("800x600")
+        self.title("등산돌이")
+        self.geometry("800x700")
 
         # Creating and placing the top entry with a search button
-        self.entry = tk.Entry(self)
-        self.entry.grid(row=0, column=0, padx=5, pady=5, sticky='ew')
+        self.entry = tk.Entry(self, width=20, font=('Helvetica', 16))
+        #self.entry = tk.Text(self, height=2)
+        self.entry.grid(row=0, column=0, padx=(20,0), pady=40, ipady=8, sticky='ew')
 
-        self.search_button = tk.Button(self, text="Search")
-        self.search_button.grid(row=0, column=1, padx=5, pady=5)
+        self.search_button = tk.Button(self, text="검색", font=('Helvetica', 16))
+        self.search_button.grid(row=0, column=1, padx=(0,20), pady=40, sticky='w')
+
+        # Apply custom style for Notebook tabs
+        style = ttk.Style()
+        style.configure('TNotebook.Tab', padding=[40, 8], font=('Helvetica', 12))
 
         # Creating notebook with tabs
-        self.notebook = ttk.Notebook(self)
-        self.notebook.grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky='nsew')
+        self.notebook = ttk.Notebook(self, style='TNotebook')
+        self.notebook.grid(row=1, column=0, columnspan=3, padx=5, pady=5, sticky='nsew')
 
         # Creating tabs
         self.tab1 = tk.Frame(self.notebook, bg='white')
@@ -33,17 +38,17 @@ class Application(tk.Tk):
         self.create_tab_content(self.tab2)
         self.create_tab_content(self.tab3)
 
-        # Creating and placing the top right image placeholder
-        self.image_frame_top = tk.Frame(self, bg='lightblue', width=200, height=100)
-        self.image_frame_top.grid(row=0, column=2, rowspan=2, padx=5, pady=5, sticky='nsew')
-
-        # Creating and placing the bottom right image placeholder
-        self.image_frame_bottom = tk.Frame(self, bg='lightgreen', width=200, height=200)
-        self.image_frame_bottom.grid(row=2, column=0, columnspan=3, padx=5, pady=5, sticky='nsew')
+        # # Creating and placing the top right image placeholder
+        self.image_weather = tk.Frame(self, bg='lightblue', width=260, height=120)
+        self.image_weather.grid(row=0, column=2, padx=50, pady=30, sticky='n')
+        #
+        # # Creating and placing the bottom right image placeholder
+        # self.image_frame_bottom = tk.Frame(self, bg='lightgreen', width=200, height=200)
+        # self.image_frame_bottom.grid(row=2, column=0, columnspan=3, padx=5, pady=5, sticky='nsew')
 
         # Configuring grid weights to ensure proper resizing behavior
         self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure(1, weight=1)
+        self.grid_columnconfigure(1, weight=2)
         self.grid_columnconfigure(2, weight=1)
         self.grid_rowconfigure(1, weight=1)
         self.grid_rowconfigure(2, weight=1)
