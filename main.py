@@ -54,19 +54,29 @@ class Application(tk.Tk):
         self.grid_rowconfigure(2, weight=1)
 
     def create_tab_content(self, tab):
-        # Listbox on the left side of the tab
+        # Listbox 설정
         listbox_frame = tk.Frame(tab, bg='white')
-        listbox_frame.pack(side='left', fill='both', expand=True, padx=5, pady=5)
+        listbox_frame.grid(row=0, column=0, sticky='nsew', padx=5, pady=5)
 
         listbox = tk.Listbox(listbox_frame)
         listbox.pack(fill='both', expand=True)
 
-        # Text area on the right side of the tab
+        # 텍스트 출력 프레임 설정
         text_frame = tk.Frame(tab, bg='white')
-        text_frame.pack(side='right', fill='both', expand=True, padx=5, pady=5)
+        text_frame.grid(row=1, column=0, sticky='nsew', padx=5, pady=5)
 
         text_area = tk.Text(text_frame)
         text_area.pack(fill='both', expand=True)
+
+        # 이미지 프레임 설정
+        image_frame = tk.Frame(tab, bg='lightgreen', width=600)
+        image_frame.grid(row=0, column=1, rowspan=2, sticky='nsew', padx=20, pady=20)
+
+        # 그리드 레이아웃 설정
+        tab.grid_columnconfigure(0, weight=1)
+        tab.grid_columnconfigure(1, weight=1)
+        tab.grid_rowconfigure(0, weight=1)
+        tab.grid_rowconfigure(1, weight=1)
 
 
 if __name__ == "__main__":
