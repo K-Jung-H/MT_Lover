@@ -42,6 +42,12 @@ def MT_data_read(SIGUN_NM):
         print("지역의 위치: 경기도 " + place_direction)
         print("산의 개수:", local_MT_num)  # 결과 출력
         print("산의 종류:", mntn_info)  # 결과 출력
+        data = {
+            "place_direction": place_direction,
+            "local_MT_num": local_MT_num,
+            "mntn_info": mntn_info,
+        }
+        return data
 
     else:
         print("OpenAPI 요청이 실패했습니다! 다시 시도해주세요.")

@@ -2,7 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 import xml_read
 
-""" asda """
+MT_data = []
+
 class Application(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -11,7 +12,6 @@ class Application(tk.Tk):
 
         # Creating and placing the top entry with a search button
         self.entry = tk.Entry(self, width=20, font=('Helvetica', 16))
-        #self.entry = tk.Text(self, height=2)
         self.entry.grid(row=0, column=0, padx=(20,0), pady=40, ipady=8, sticky='ew')
 
         self.search_button = tk.Button(self, text="검색", font=('Helvetica', 16), command=self.SIGUN_search)
@@ -35,9 +35,9 @@ class Application(tk.Tk):
         self.notebook.add(self.tab3, text="Tab 3")
 
         # Adding listbox and text areas to each tab
-        self.create_tab_content(self.tab1)
-        self.create_tab_content(self.tab2)
-        self.create_tab_content(self.tab3)
+        self.listbox1 = self.create_tab_content(self.tab1)
+        self.listbox2 = self.create_tab_content(self.tab2)
+        self.listbox3 = self.create_tab_content(self.tab3)
 
         # # Creating and placing the top right image placeholder
         self.image_weather = tk.Frame(self, bg='lightblue', width=260, height=120)
@@ -67,30 +67,19 @@ class Application(tk.Tk):
 
             xml_read.MT_data_read()
 
-
         # Listbox 설정
         listbox_frame = tk.Frame(tab, bg='white')
         listbox_frame.grid(row=0, column=0, sticky='nsew', padx=20, pady=50)
 
         listbox = tk.Listbox(listbox_frame)
         listbox.pack(side=tk.LEFT, fill='both', expand=True)
+        # self.listbox = listbox  # 이 부분은 필요 없습니다.
 
         # Scrollbar for the listbox
         scrollbar = tk.Scrollbar(listbox_frame, orient=tk.VERTICAL)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         scrollbar.config(command=listbox.yview)  # listbox와 scrollbar 연결
         listbox.config(yscrollcommand=scrollbar.set)  # scrollbar와 listbox 연결
-
-        listbox.insert(tk.END, "Item 1")
-        listbox.insert(tk.END, "Item 2")
-        listbox.insert(tk.END, "Item 3")
-        listbox.insert(tk.END, "Item 4")
-        listbox.insert(tk.END, "Item 5")
-        listbox.insert(tk.END, "Item 6")
-        listbox.insert(tk.END, "Item 7")
-        listbox.insert(tk.END, "Item 8")
-        listbox.insert(tk.END, "Item 9")
-        listbox.insert(tk.END, "Item 10")
 
         #listbox.bind("<<ListboxSelect>>", on_item_select)
 
@@ -112,11 +101,20 @@ class Application(tk.Tk):
         tab.grid_rowconfigure(0, weight=1)
         tab.grid_rowconfigure(1, weight=1)
 
+        return listbox  # 수정된 부분: listbox를 반환합니다.
+
     def SIGUN_search(self):
+        global MT_data
+        self.listbox1.delete(0, tk.END)  # 탭 1 리스트 상자 초기화
         search_text = self.entry.get()
         print("검색어:", search_text)
-        xml_read.MT_data_read(search_text)
-
+        MT_data = []  # MT_data 초기화
+        mountain_data = xml_read.MT_data_read(search_text)
+        if mountain_data is not None:
+            MT_data.append(mountain_data)
+            for mountain_data in MT_data:
+                for mountain_name in mountain_data["mntn_info"]:
+                    self.listbox1.insert(tk.END, mountain_name)
 
 if __name__ == "__main__":
     app = Application()
