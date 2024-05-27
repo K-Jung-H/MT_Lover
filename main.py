@@ -67,9 +67,20 @@ class Application(tk.Tk):
 
             xml_read.MT_data_read()
 
+        # Label 위젯을 추가하여 특정 텍스트 출력
+        if tab == self.tab1:
+            labelText = "Tab 1에 표시할 특정 텍스트"
+        elif tab == self.tab2:
+            labelText = "Tab 2에 표시할 다른 특정 텍스트"
+        elif tab == self.tab3:
+            labelText = "Tab 3에 표시할 다른 특정 텍스트"
+
+        label = tk.Label(tab, text=labelText, font=('Helvetica', 12), bg='white', fg='black')  # fg를 추가하여 텍스트 색상 설정
+        label.grid(row=0, column=0, padx=20, pady=20, sticky='w')
+
         # Listbox 설정
         listbox_frame = tk.Frame(tab, bg='white')
-        listbox_frame.grid(row=0, column=0, sticky='nsew', padx=20, pady=50)
+        listbox_frame.grid(row=1, column=0, sticky='nsew', padx=20, pady=10)
 
         listbox = tk.Listbox(listbox_frame)
         listbox.pack(side=tk.LEFT, fill='both', expand=True)
@@ -81,25 +92,23 @@ class Application(tk.Tk):
         scrollbar.config(command=listbox.yview)  # listbox와 scrollbar 연결
         listbox.config(yscrollcommand=scrollbar.set)  # scrollbar와 listbox 연결
 
-        #listbox.bind("<<ListboxSelect>>", on_item_select)
-
-
         # 텍스트 출력 프레임 설정
         text_frame = tk.Frame(tab, bg='white')
-        text_frame.grid(row=1, column=0, sticky='nsew', padx=20, pady=20)
+        text_frame.grid(row=2, column=0, sticky='nsew', padx=20, pady=20)
 
         text_area = tk.Text(text_frame)
         text_area.pack(fill='both', expand=True)
 
         # 이미지 프레임 설정
         image_frame = tk.Frame(tab, bg='lightgreen', width=600)
-        image_frame.grid(row=0, column=1, rowspan=2, sticky='nsew', padx=20, pady=20)
+        image_frame.grid(row=0, column=1, rowspan=3, sticky='nsew', padx=20, pady=20)
 
         # 그리드 레이아웃 설정
         tab.grid_columnconfigure(0, weight=1)
         tab.grid_columnconfigure(1, weight=1)
         tab.grid_rowconfigure(0, weight=1)
         tab.grid_rowconfigure(1, weight=1)
+        tab.grid_rowconfigure(2, weight=1)
 
         return listbox  # 수정된 부분: listbox를 반환합니다.
 
