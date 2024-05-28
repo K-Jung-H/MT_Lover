@@ -19,7 +19,17 @@ class Application(tk.Tk):
 
         # Apply custom style for Notebook tabs
         style = ttk.Style()
-        style.configure('TNotebook.Tab', padding=[40, 8], font=('Helvetica', 12))
+        style.configure('TNotebook.Tab', padding=[40, 8], font=('Helvetica', 12), bg='black')
+
+        # Creating custom styles for each tab
+        # style.configure('TNotebook.Tab', background='black', foreground='white')
+        style.map('TNotebook.Tab', background=[('selected', 'lightblue')], foreground=[('selected', 'blue')])
+
+        # style.configure('Custom.TNotebook.Tab2', background='red', foreground='white')
+        # style.map('Custom.TNotebook.Tab2', background=[('selected', 'red')], foreground=[('selected', 'white')])
+        #
+        # style.configure('Custom.TNotebook.Tab3', background='green', foreground='white')
+        # style.map('Custom.TNotebook.Tab3', background=[('selected', 'green')], foreground=[('selected', 'white')])
 
         # Creating notebook with tabs
         self.notebook = ttk.Notebook(self, style='TNotebook')
@@ -30,7 +40,7 @@ class Application(tk.Tk):
         self.tab2 = tk.Frame(self.notebook, bg='white')
         self.tab3 = tk.Frame(self.notebook, bg='white')
 
-        self.notebook.add(self.tab1, text="Tab 1")
+        self.notebook.add(self.tab1, text="해당 지역의 산")
         self.notebook.add(self.tab2, text="Tab 2")
         self.notebook.add(self.tab3, text="Tab 3")
 
@@ -73,7 +83,9 @@ class Application(tk.Tk):
             #     "MT_ADMIN_NUM": MT_ADMIN_NUM,
             #     "MT_INFO": MT_INFO
             # }
-            if data and "MT_ADMIN_NUM" in data:
+            if data == -1:
+                text_area.insert(tk.END, "산 정보 없음" + '\n')
+            elif data and "MT_ADMIN_NUM" in data:
                 text_area.insert(tk.END, "산 이름 : " + data["MT_NAME"] + '\n')
                 text_area.insert(tk.END, "산 코드 : " + data["MT_CODE"] + '\n')
                 text_area.insert(tk.END, "산 위치 : " + data["MT_LOCATION"] + '\n')
@@ -87,6 +99,7 @@ class Application(tk.Tk):
             # xml_read.MT_data_read()
 
         # Label 위젯을 추가하여 특정 텍스트 출력
+        labelText = " "
         if tab == self.tab1:
             labelText = "Tab 1에 표시할 특정 텍스트"
         elif tab == self.tab2:
@@ -95,7 +108,7 @@ class Application(tk.Tk):
             labelText = "Tab 3에 표시할 다른 특정 텍스트"
 
         label = tk.Label(tab, text=labelText, font=('Helvetica', 12), bg='white', fg='black')  # fg를 추가하여 텍스트 색상 설정
-        label.grid(row=0, column=0, padx=20, pady=20, sticky='w')
+        label.grid(row=0, column=0, padx=20, pady=20, sticky='n')
 
         # Listbox 설정
         listbox_frame = tk.Frame(tab, bg='white')
@@ -104,7 +117,6 @@ class Application(tk.Tk):
         listbox = tk.Listbox(listbox_frame)
         listbox.pack(side=tk.LEFT, fill='both', expand=True)
         listbox.bind('<<ListboxSelect>>', on_item_select)
-        # self.listbox = listbox  # 이 부분은 필요 없습니다.
 
         # Scrollbar for the listbox
         scrollbar = tk.Scrollbar(listbox_frame, orient=tk.VERTICAL)
