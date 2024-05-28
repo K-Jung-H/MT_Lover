@@ -54,7 +54,7 @@ def MT_data_read(SIGUN_NM):
     # 연결 닫기
     conn.close()
 
-def MT_deap_data():
+def MT_deap_data(MT_name):
     # Disable warnings related to SSL
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -66,7 +66,7 @@ def MT_deap_data():
 
     # 요청 매개변수 설정
     params = {
-        'searchWrd': '구름산',
+        'searchWrd': MT_name,
         'pageNo': '1',
         'numOfRows': '5',
         'ServiceKey': api_key
@@ -105,6 +105,17 @@ def MT_deap_data():
                     print("산 관리주체 연락처:", MT_ADMIN_NUM)
                     print("산 100대 명산 선정 이유:", MT_TOP_100_REASON)
                     print("산 정보:", MT_INFO)
+
+                    data = {
+                        "MT_NAME" : MT_NAME,
+                        "MT_CODE" : MT_CODE,
+                        "MT_LOCATION" : MT_LOCATION,
+                        "MT_HIGH" : MT_HIGH,
+                        "MT_ADMIN" : MT_ADMIN,
+                        "MT_ADMIN_NUM" : MT_ADMIN_NUM,
+                        "MT_INFO" : MT_INFO
+                    }
+                    return data
         else:
             print(f"Error: {result_msg} (Code: {result_code})")
     else:

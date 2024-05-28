@@ -61,11 +61,30 @@ class Application(tk.Tk):
 
             # 선택된 항목의 텍스트 가져오기
             selected_item = event.widget.get(selected_index)
+            data = xml_read.MT_deap_data(selected_item)
+            text_area.delete('1.0', tk.END)  # 텍스트 영역 초기화
+
+            # data = {
+            #     "MT_NAME": MT_NAME,
+            #     "MT_CODE": MT_CODE,
+            #     "MT_LOCATION": MT_LOCATION,
+            #     "MT_HIGH": MT_HIGH,
+            #     "MT_ADMIN": MT_ADMIN,
+            #     "MT_ADMIN_NUM": MT_ADMIN_NUM,
+            #     "MT_INFO": MT_INFO
+            # }
+            if data and "MT_ADMIN_NUM" in data:
+                text_area.insert(tk.END, "산 이름 : " + data["MT_NAME"] + '\n')
+                text_area.insert(tk.END, "산 코드 : " + data["MT_CODE"] + '\n')
+                text_area.insert(tk.END, "산 위치 : " + data["MT_LOCATION"] + '\n')
+                text_area.insert(tk.END, "산 높이 : " + data["MT_HIGH"] + '\n')
+                text_area.insert(tk.END, "산 관리 주체 : " + data["MT_ADMIN"] + '\n')
+                text_area.insert(tk.END, "산 관리 주체 연락처 : " + data["MT_ADMIN_NUM"] + '\n')
 
             # 선택된 항목에 대한 처리
-            print("선택된 항목:", selected_item)
-
-            xml_read.MT_data_read()
+            # print("선택된 항목:", selected_item)
+            #
+            # xml_read.MT_data_read()
 
         # Label 위젯을 추가하여 특정 텍스트 출력
         if tab == self.tab1:
@@ -84,6 +103,7 @@ class Application(tk.Tk):
 
         listbox = tk.Listbox(listbox_frame)
         listbox.pack(side=tk.LEFT, fill='both', expand=True)
+        listbox.bind('<<ListboxSelect>>', on_item_select)
         # self.listbox = listbox  # 이 부분은 필요 없습니다.
 
         # Scrollbar for the listbox
@@ -125,7 +145,7 @@ class Application(tk.Tk):
                 for mountain_name in mountain_data["mntn_info"]:
                     self.listbox1.insert(tk.END, mountain_name)
 
-        xml_read.MT_deap_data()
+
 
 if __name__ == "__main__":
     app = Application()
