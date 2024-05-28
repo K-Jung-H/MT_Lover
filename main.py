@@ -125,6 +125,8 @@ class Application(tk.Tk):
                 for mountain_name in mountain_data["mntn_info"]:
                     self.listbox1.insert(tk.END, mountain_name)
 
+        xml_read.MT_deap_data()
+
 if __name__ == "__main__":
     app = Application()
     app.mainloop()
