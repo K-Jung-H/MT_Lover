@@ -21,16 +21,6 @@ class Application(tk.Tk):
         style = ttk.Style()
         style.configure('TNotebook.Tab', padding=[40, 8], font=('Helvetica', 12), bg='black')
 
-        # Creating custom styles for each tab
-        # style.configure('TNotebook.Tab', background='black', foreground='white')
-        style.map('TNotebook.Tab', background=[('selected', 'lightblue')], foreground=[('selected', 'blue')])
-
-        # style.configure('Custom.TNotebook.Tab2', background='red', foreground='white')
-        # style.map('Custom.TNotebook.Tab2', background=[('selected', 'red')], foreground=[('selected', 'white')])
-        #
-        # style.configure('Custom.TNotebook.Tab3', background='green', foreground='white')
-        # style.map('Custom.TNotebook.Tab3', background=[('selected', 'green')], foreground=[('selected', 'white')])
-
         # Creating notebook with tabs
         self.notebook = ttk.Notebook(self, style='TNotebook')
         self.notebook.grid(row=1, column=0, columnspan=3, padx=5, pady=5, sticky='nsew')
@@ -45,17 +35,9 @@ class Application(tk.Tk):
         self.notebook.add(self.tab3, text="Tab 3")
 
         # Adding listbox and text areas to each tab
-        self.listbox1 = self.create_tab_content(self.tab1)
-        self.listbox2 = self.create_tab_content(self.tab2)
-        self.listbox3 = self.create_tab_content(self.tab3)
-
-        # # Creating and placing the top right image placeholder
-        self.image_weather = tk.Frame(self, bg='lightblue', width=260, height=120)
-        self.image_weather.grid(row=0, column=2, padx=50, pady=30, sticky='n')
-        #
-        # # Creating and placing the bottom right image placeholder
-        # self.image_frame_bottom = tk.Frame(self, bg='lightgreen', width=200, height=200)
-        # self.image_frame_bottom.grid(row=2, column=0, columnspan=3, padx=5, pady=5, sticky='nsew')
+        self.listbox1, self.graph_frame1 = self.create_tab_content(self.tab1)
+        self.listbox2, self.graph_frame2 = self.create_tab_content(self.tab2)
+        self.listbox3, self.graph_frame3 = self.create_tab_content(self.tab3)
 
         # Configuring grid weights to ensure proper resizing behavior
         self.grid_columnconfigure(0, weight=1)
@@ -111,7 +93,7 @@ class Application(tk.Tk):
         label.grid(row=0, column=0, padx=20, pady=20, sticky='n')
 
         # Listbox 설정
-        listbox_frame = tk.Frame(tab, bg='white')
+        listbox_frame = tk.Frame(tab, bg='white', height=400)
         listbox_frame.grid(row=1, column=0, sticky='nsew', padx=20, pady=10)
 
         listbox = tk.Listbox(listbox_frame)
@@ -125,15 +107,19 @@ class Application(tk.Tk):
         listbox.config(yscrollcommand=scrollbar.set)  # scrollbar와 listbox 연결
 
         # 텍스트 출력 프레임 설정
-        text_frame = tk.Frame(tab, bg='white')
+        text_frame = tk.Frame(tab, bg='white', height=10)
         text_frame.grid(row=2, column=0, sticky='nsew', padx=20, pady=20)
 
         text_area = tk.Text(text_frame)
         text_area.pack(fill='both', expand=True)
 
+        # 그래프 프레임 설정
+        graph_frame = tk.Frame(tab, bg='lightblue', height=100)
+        graph_frame.grid(row=3, column=0, sticky='nsew', padx=20, pady=20)
+
         # 이미지 프레임 설정
         image_frame = tk.Frame(tab, bg='lightgreen', width=600)
-        image_frame.grid(row=0, column=1, rowspan=3, sticky='nsew', padx=20, pady=20)
+        image_frame.grid(row=0, column=1, rowspan=4, sticky='nsew', padx=20, pady=20)
 
         # 그리드 레이아웃 설정
         tab.grid_columnconfigure(0, weight=1)
@@ -142,7 +128,38 @@ class Application(tk.Tk):
         tab.grid_rowconfigure(1, weight=1)
         tab.grid_rowconfigure(2, weight=1)
 
-        return listbox  # 수정된 부분: listbox를 반환합니다.
+        return listbox, graph_frame  # 수정된 부분: listbox 및 graph_frame을 반환합니다.
+
+    def draw_graph(self, search_text, graph_frame):
+        datas = xml_read.MT_data_read(search_text)
+        if datas is not None and "mntn_info" in datas:
+            mntn_info = datas["mntn_info"]
+            heights = [int(info.split(":")[1]) for info in mntn_info if "해발높이" in info]
+            if heights:
+                max_height = max(heights)
+                min_height = min(heights)
+
+                # 그래프를 그리는 작업
+                # 캔버스를 graph_frame에 추가
+                graph_area = tk.Canvas(graph_frame, bg='white', width=200, height=200)
+                graph_area.grid(row=0, column=0, padx=20, pady=20)
+
+                # 각 막대의 너비와 간격 설정
+                bar_width = 30
+                gap = 10
+                x = 50
+                y_base = 150
+
+                # 각 막대를 그리기
+                for height in heights:
+                    bar_height = (height / max_height) * 100
+                    graph_area.create_rectangle(x, y_base - bar_height, x + bar_width, y_base, fill='blue')
+                    graph_area.create_text(x + bar_width / 2, y_base + 5, text=str(height), anchor='n')
+                    x += bar_width + gap
+
+                # y 축 레이블
+                graph_area.create_text(20, y_base, text=str(max_height), anchor='e')
+                graph_area.create_text(20, y_base - 100, text=str(min_height), anchor='e')
 
     def SIGUN_search(self):
         global MT_data
@@ -157,7 +174,7 @@ class Application(tk.Tk):
                 for mountain_name in mountain_data["mntn_info"]:
                     self.listbox1.insert(tk.END, mountain_name)
 
-
+        self.draw_graph(search_text, self.graph_frame1)  # 수정된 부분: graph_frame을 draw_graph 함수에 전달합니다.
 
 if __name__ == "__main__":
     app = Application()
