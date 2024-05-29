@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import xml_read
 import Gmap_Test
+from PIL import Image, ImageTk
 
 MT_data = []
 
@@ -47,6 +48,10 @@ class Application:
         self.image_weather = tk.Frame(self.window, bg='lightblue', width=260, height=120)
         self.image_weather.grid(row=0, column=2, padx=50, pady=30, sticky='n')
 
+        # Creating a label to display the map image
+        self.map_label = tk.Label(self.window)
+        self.map_label.grid(row=1, column=0, columnspan=3, padx=20, pady=20, sticky='n')
+
         # Configuring grid weights to ensure proper resizing behavior
         self.window.grid_columnconfigure(0, weight=1)
         self.window.grid_columnconfigure(1, weight=2)
@@ -82,6 +87,10 @@ class Application:
                 text_area.insert(tk.END, "산 높이 : " + data["MT_HIGH"] + '\n')
                 text_area.insert(tk.END, "산 관리 주체 : " + data["MT_ADMIN"] + '\n')
                 text_area.insert(tk.END, "산 관리 주체 연락처 : " + data["MT_ADMIN_NUM"] + '\n')
+
+                # Show the map
+                img = Gmap_Test.print_map(data["MT_NAME"])
+                self.show_map_image(img)
 
         # Label 위젯을 추가하여 특정 텍스트 출력
         labelText = " "
@@ -123,8 +132,8 @@ class Application:
         # graph_area.pack()
 
         # 이미지 프레임 설정
-        image_frame = tk.Frame(tab, bg='lightgreen', width=600)
-        image_frame.grid(row=0, column=1, rowspan=4, sticky='nsew', padx=20, pady=20)
+        self.image_frame = tk.Frame(tab, bg='white', width=600, height=100)
+        self.image_frame.grid(row=0, column=1, rowspan=4, sticky='nsew', padx=20, pady=20)
 
         # 그리드 레이아웃 설정
         tab.grid_columnconfigure(0, weight=1)
@@ -136,6 +145,11 @@ class Application:
 
         return listbox
 
+    def show_map_image(self, img):
+        tk_img = ImageTk.PhotoImage(img)
+        self.map_label.configure(image=tk_img)
+        self.map_label.image = tk_img  # Keep a reference to avoid garbage collection
+        self.map_label.place(x=375, y=260)
     def SIGUN_search(self):
         global MT_data
         self.listbox1.delete(0, tk.END)
@@ -148,7 +162,6 @@ class Application:
             for mountain_data in MT_data:
                 for mountain_name in mountain_data["mntn_info"]:
                     self.listbox1.insert(tk.END, mountain_name)
-        Gmap_Test.print_map(search_text)
 
     def run(self):
         self.window.mainloop()
