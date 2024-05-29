@@ -32,9 +32,11 @@ def get_map_image(gmaps, location, zoom_level, map_type, pin_locations):
     img = Image.open(img_data)
     return img
 
+
 # Google Maps API 키
 Google_API_Key = Key
 gmaps = googlemaps.Client(Google_API_Key)
+
 
 def print_map(location_name):
     gmaps = googlemaps.Client(key='AIzaSyBJmrKUWYFYwTtYd1Rx9YrpKTG6jsXrEk8')
@@ -49,3 +51,27 @@ def print_map(location_name):
 if __name__ == "__main__":
     location_name = '북한산'
     print_map(location_name)
+=======
+
+# 검색할 지역명
+location_name = '북한산'
+# 지도의 줌 레벨
+zoom_level = 20
+
+map_type = 'satellite'
+
+# 지역명으로 좌표 검색
+latitude, longitude = find_XY(gmaps, location_name)
+
+
+pin_locations = [(latitude, longitude)]
+
+# 검색된 좌표로 지도를 보여주기
+show_map(gmaps, (latitude, longitude), zoom_level, map_type, pin_locations)
+
+print(pin_locations
+      )
+NX = int(pin_locations[0][0])
+NY = int(pin_locations[0][1])
+
+print(NX,NY)
