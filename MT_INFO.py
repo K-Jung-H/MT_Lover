@@ -13,7 +13,7 @@ url = "http://apis.data.go.kr/1400000/service/cultureInfoService2/mntInfoOpenAPI
 
 # 요청 매개변수 설정
 params = {
-    'searchWrd': '청룡산',
+    'searchWrd': '인룡산',
     'pageNo': '1',
     'numOfRows': '5',
     'ServiceKey': api_key
