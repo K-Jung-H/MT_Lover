@@ -14,6 +14,8 @@ def get_weather_data(nx, ny):
     now = now.replace(minute=0, second=0, microsecond=0)
     print(f"정각으로 맞춘 현재 시간: {now}")
 
+    now = "2024-06-03 22:00:00"
+
     # 엑셀 파일 로드
     data = pd.read_excel('location_grids.xlsx')
 

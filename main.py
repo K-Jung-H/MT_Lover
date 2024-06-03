@@ -13,6 +13,8 @@ class Application:
         self.window.title("등산돌이")
         self.window.geometry("800x700")
 
+        self.local_mt_list = []
+
         # Creating and placing the top entry with a search button
         self.entry = tk.Entry(self.window, width=20, font=('Helvetica', 16))
         self.entry.grid(row=0, column=0, padx=(20,0), pady=40, ipady=8, sticky='ew')
@@ -37,12 +39,12 @@ class Application:
         self.tab3 = tk.Frame(self.notebook, bg='white')
 
         self.notebook.add(self.tab1, text="해당 지역의 산")
-        self.notebook.add(self.tab2, text="Tab 2")
+        self.notebook.add(self.tab2, text="산의 높이 막대 그래프")
         self.notebook.add(self.tab3, text="Tab 3")
 
         # Adding listbox and text areas to each tab
         self.listbox1 = self.create_tab_content(self.tab1)
-        self.listbox2 = self.create_tab_content(self.tab2)
+        #self.listbox2 = self.create_tab_content(self.tab2)
         self.listbox3 = self.create_tab_content(self.tab3)
 
         # Creating and placing the top right image placeholder
@@ -52,6 +54,16 @@ class Application:
         # Creating a label to display the map image
         self.map_label = tk.Label(self.window)
         self.map_label.grid(row=1, column=0, columnspan=3, padx=20, pady=20, sticky='n')
+
+        self.canvas = tk.Canvas(self.tab2, bg='white', width=600, height=400)
+        self.canvas.grid(row=0, column=0, padx=20, pady=20, sticky='n')
+
+        self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_selected)
+
+        # Create bar chart initially
+        self.create_bar_chart()
+
+        self.now_g_image = ""
 
         # Configuring grid weights to ensure proper resizing behavior
         self.window.grid_columnconfigure(0, weight=1)
@@ -91,6 +103,7 @@ class Application:
 
                 # Show the map
                 img = Gmap_Test.print_map(data["MT_NAME"])
+                self.now_g_image = Gmap_Test.print_map(data["MT_NAME"])
                 self.show_map_image(img)
 
                 mt_dx,mt_dy = Gmap_Test.find_XY(data["MT_NAME"])
@@ -232,6 +245,12 @@ class Application:
         self.map_label.configure(image=tk_img)
         self.map_label.image = tk_img  # Keep a reference to avoid garbage collection
         self.map_label.place(x=375, y=260)
+
+    def close_map_image(self):
+        # self.map_label.configure(image=None)
+        # self.map_label.image = None
+        self.map_label.place_forget()
+
     def SIGUN_search(self):
         global MT_data
         self.listbox1.delete(0, tk.END)
@@ -244,6 +263,61 @@ class Application:
             for mountain_data in MT_data:
                 for mountain_name in mountain_data["mntn_info"]:
                     self.listbox1.insert(tk.END, mountain_name)
+                    self.local_mt_list.append(mountain_name)
+                    print('산 리스트 테스트: ', self.local_mt_list)
+
+    def create_bar_chart(self):
+        # Clear canvas before drawing
+        self.canvas.delete("all")
+
+        # Drawing parameters
+        bar_width = 20
+        max_height = 0
+        mt_info = []  # 막대 그래프를 그릴 산의 정보 리스트
+
+        for mt in self.local_mt_list:
+            data = xml_read.MT_deap_data(mt)
+            if data == -1:
+                continue
+            elif data and "MT_ADMIN_NUM" in data:
+                mt_info.append((mt, data['MT_HIGH']))
+                max_height = max(max_height, float(data['MT_HIGH']))  # 최대 높이 갱신
+
+        canvas_height = 400
+        canvas_width = 600
+        x_offset = 50
+        y_offset = 50
+
+        # Draw bars
+        for i, (mt_name, mt_height) in enumerate(mt_info):
+            x0 = x_offset + i * 50
+            y0 = canvas_height - y_offset
+            x1 = x0 + bar_width
+            y1 = y0 - (float(mt_height) / max_height) * (canvas_height - 2 * y_offset)
+            self.canvas.create_rectangle(x0, y0, x1, y1, fill='skyblue')
+
+            # Add mountain names
+            self.canvas.create_text((x0 + x1) / 2, y0 + 10, text=mt_name, anchor='n',
+                                    font=('Helvetica', 10))
+
+        # Draw axes
+        self.canvas.create_line(x_offset, canvas_height - y_offset, canvas_width - x_offset,
+                                canvas_height - y_offset, width=2)
+        self.canvas.create_line(x_offset, canvas_height - y_offset, x_offset, y_offset, width=2)
+        self.canvas.create_text(canvas_width / 2, canvas_height - y_offset + 40, text="산 이름", font=('Helvetica', 12))
+        self.canvas.create_text(x_offset - 20, canvas_height / 2, text="높이", font=('Helvetica', 12), anchor='e',
+                                angle=90)
+
+    def on_tab_selected(self, event):
+        selected_tab = event.widget.select()
+        tab_text = event.widget.tab(selected_tab, "text")
+        if tab_text == "해당 지역의 산":
+            self.show_map_image(self.now_g_image)
+            pass
+        elif tab_text == "산의 높이 막대 그래프":
+
+            self.close_map_image()
+            self.create_bar_chart()
 
     def run(self):
         self.window.mainloop()
