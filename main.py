@@ -98,6 +98,82 @@ class Application:
                 W_data = Weather_Test.get_weather_data(mt_dx,mt_dy)
                 print(W_data)
 
+                time_str = W_data[4].split()[1]  # 문자열을 공백을 기준으로 분리하고 두 번째 요소 선택
+                # 시간 부분을 정수로 변환하여 비교
+                hour = int(time_str.split(':')[0])
+                time_of_day = ""
+                if 6 <= hour < 18:
+                    time_of_day = "낮"
+                else:
+                    time_of_day = "밤"
+
+                image_path = ""  # 이미지 파일 경로
+                # 강수량과 날씨 정보를 확인하여 이미지 프레임에 글자 입력
+                if W_data[1] == "강수 없음":
+                    if W_data[0] == "맑음":
+                        if time_of_day == "낮":
+                            image_path = "weather_image/맑음(낮).png"
+                        else:
+                            image_path = "weather_image/맑음(밤).png"
+                    elif W_data[0] == "구름많음":
+                        if time_of_day == "낮":
+                            image_path = "weather_image/구름많음(낮).png"
+                        else:
+                            image_path = "weather_image/구름많음(밤).png"
+                    elif W_data[0] == "흐림":
+                        image_path = "weather_image/흐림.png"
+                else:
+                    # 강수가 있는 경우에 대한 처리
+                    if W_data[1] == "비":
+                        image_path = "weather_image/비.png"
+                    elif W_data[1] == "비/눈":
+                        image_path = "weather_image/비또는눈.png"
+                    elif W_data[1] == "눈":
+                        image_path = "weather_image/눈.png"
+                    elif W_data[1] == "빗방울":
+                        image_path = "weather_image/빗방울.png"
+                    elif W_data[1] == "눈날림":
+                        image_path = "weather_image/눈날림.png"
+
+                # 이미지 프레임에 글자 입력
+                # weather_label = tk.Label(self.image_weather, text=weather_text, font=('Helvetica', 16), bg='lightblue',
+                #                          fg='black')
+                # weather_label.pack(fill='both', expand=True)
+                # weather_label = tk.Label(self.image_weather, text=weather_text, font=('Helvetica', 16), bg='lightblue',
+                #                          fg='black')
+                # # weather_label.place(relx=0.5, rely=0.5, anchor='center')  # 중앙에 배치
+                # weather_label.place(relx=0.0, rely=0.5, anchor='w')  # 중앙에 배치
+                self.image_weather.configure(bg='white')
+
+
+                image = Image.open(image_path)
+                tk_image = ImageTk.PhotoImage(image)
+                # 이미지 레이블 생성 및 이미지 삽입
+                image_label = tk.Label(self.image_weather, image=tk_image, bg='white')
+                image_label.image = tk_image  # Tkinter에서 이미지가 가비지 컬렉션되는 것을 방지하기 위해 참조 유지
+                image_label.place(relx=0.05, rely=0.45, anchor='w')  # 이미지 레이블 배치
+
+                rain_text = W_data[1]
+                weather_label = tk.Label(self.image_weather, text=rain_text, font=('Helvetica', 12), bg='white',
+                                         fg='black')
+                weather_label.place(relx=0.55, rely=0.15, anchor='w')  # 중앙에 배치
+
+                do_text = "기온 " + W_data[2] + "℃"
+                weather_label = tk.Label(self.image_weather, text=do_text, font=('Helvetica', 12), bg='white',
+                                         fg='black')
+                weather_label.place(relx=0.55, rely=0.45, anchor='w')  # 중앙에 배치
+
+                sp_text = "습도 " + W_data[2] + "%"
+                weather_label = tk.Label(self.image_weather, text=sp_text, font=('Helvetica', 12), bg='white',
+                                         fg='black')
+                weather_label.place(relx=0.55, rely=0.7, anchor='w')  # 중앙에 배치
+
+                now_time_text = W_data[4]
+                weather_label = tk.Label(self.image_weather, text=now_time_text, font=('Helvetica', 8), bg='white',
+                                         fg='black')
+                weather_label.place(relx=0.5, rely=0.9, anchor='w')  # 중앙에 배치
+
+
         # Label 위젯을 추가하여 특정 텍스트 출력
         labelText = " "
         if tab == self.tab1:

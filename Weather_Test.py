@@ -95,7 +95,7 @@ def get_weather_data(nx, ny):
             if 'RN1' in val and val['RN1'] != '강수없음':
                 # RN1 1시간 강수량
                 rn1_temp = val['RN1']
-                template += f" 시간당 {rn1_temp}mm "
+                # template += f" 시간당 {rn1_temp}mm "
 
         # 기온
         if 'T1H' in val:
@@ -141,9 +141,11 @@ def get_weather_data(nx, ny):
     # 경도와 위도를 입력 받아서 오차 범위 내에 있는 격자 좌표 출력
     longitude = 126868  # 예시 경도 값 (초/100)
     latitude = 37475  # 예시 위도 값 (초/100)
-    tolerance = 1  # 오차 범위
+    tolerance = 0.1  # 오차 범위
 
     matched_coordinates = find_grid(longitude, latitude, tolerance)
     print(f"오차 범위 {tolerance} 내에서 매칭된 좌표: {matched_coordinates}")
+
+    r_data.append(str(now))
 
     return r_data
