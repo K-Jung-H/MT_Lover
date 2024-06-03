@@ -3,6 +3,7 @@ from tkinter import ttk
 import xml_read
 import Gmap_Test
 from PIL import Image, ImageTk
+import Weather_Test
 
 MT_data = []
 
@@ -91,6 +92,11 @@ class Application:
                 # Show the map
                 img = Gmap_Test.print_map(data["MT_NAME"])
                 self.show_map_image(img)
+
+                mt_dx,mt_dy = Gmap_Test.find_XY(data["MT_NAME"])
+                print(mt_dx,mt_dy)
+                W_data = Weather_Test.get_weather_data(mt_dx,mt_dy)
+                print(W_data)
 
         # Label 위젯을 추가하여 특정 텍스트 출력
         labelText = " "

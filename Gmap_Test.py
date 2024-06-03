@@ -4,8 +4,8 @@ import io
 from PIL import Image, ImageTk
 import tkinter as tk
 
-def find_XY(gmaps, to_find):
-    geocode_result = gmaps.geocode(to_find, language='ko')
+def find_XY(to_find):
+    geocode_result = googlemaps.Client(Google_API_Key).geocode(to_find, language='ko')
 
     latitude = geocode_result[0]["geometry"]["location"]["lat"]
     longitude = geocode_result[0]["geometry"]["location"]["lng"]
@@ -41,7 +41,7 @@ def print_map(location_name):
     zoom_level = 15
     map_type = 'satellite'
 
-    latitude, longitude = find_XY(gmaps, location_name)
+    latitude, longitude = find_XY(location_name)
     pin_locations = [(latitude, longitude)]
     img = get_map_image(gmaps, (latitude, longitude), zoom_level, map_type, pin_locations)
     return img
