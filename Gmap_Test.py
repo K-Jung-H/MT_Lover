@@ -46,6 +46,3 @@ def print_map(location_name):
     img = get_map_image(gmaps, (latitude, longitude), zoom_level, map_type, pin_locations)
     return img
 
-if __name__ == "__main__":
-    location_name = '북한산'
-    print_map(location_name)

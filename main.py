@@ -4,6 +4,7 @@ import xml_read
 import Gmap_Test
 from PIL import Image, ImageTk
 import Weather_Test
+import image_search
 
 MT_data = []
 
@@ -13,6 +14,7 @@ class Application:
         self.window.title("등산돌이")
         self.window.geometry("800x700")
 
+        self.Mt_list = {}
         self.local_mt_list = []
 
         # Creating and placing the top entry with a search button
@@ -100,7 +102,7 @@ class Application:
                 text_area.insert(tk.END, "산 높이 : " + data["MT_HIGH"] + '\n')
                 text_area.insert(tk.END, "산 관리 주체 : " + data["MT_ADMIN"] + '\n')
                 text_area.insert(tk.END, "산 관리 주체 연락처 : " + data["MT_ADMIN_NUM"] + '\n')
-
+                print(data["MT_LOCATION"][0:7] + ' ' + data["MT_NAME"])
                 # Show the map
                 img = Gmap_Test.print_map(data["MT_NAME"])
                 self.now_g_image = Gmap_Test.print_map(data["MT_NAME"])
@@ -253,41 +255,48 @@ class Application:
 
     def SIGUN_search(self):
         global MT_data
+        self.local_mt_list.clear()
         self.listbox1.delete(0, tk.END)
         search_text = self.entry.get()
         print("검색어:", search_text)
-        MT_data = []
+
         mountain_data = xml_read.MT_data_read(search_text)
         if mountain_data is not None:
-            MT_data.append(mountain_data)
-            for mountain_data in MT_data:
-                for mountain_name in mountain_data["mntn_info"]:
-                    self.listbox1.insert(tk.END, mountain_name)
-                    self.local_mt_list.append(mountain_name)
-                    print('산 리스트 테스트: ', self.local_mt_list)
+            for mt_name in mountain_data["mntn_info"]:
+                self.listbox1.insert(tk.END, mt_name)
+
+
+                if mt_name not in self.Mt_list.keys():
+                    deep_data = xml_read.MT_deap_data(mt_name)
+                    if deep_data is not None:
+                        self.local_mt_list.append(mt_name)
+                        self.Mt_list[mt_name] = deep_data['MT_HIGH']
+                else:
+                    self.local_mt_list.append(mt_name)
+
+            print('산 리스트 테스트: ', self.local_mt_list)
+            print('Mt_list 테스트: ', self.Mt_list)
 
     def create_bar_chart(self):
         # Clear canvas before drawing
         self.canvas.delete("all")
+        self.canvas.place_forget()
 
         # Drawing parameters
         bar_width = 20
         max_height = 0
         mt_info = []  # 막대 그래프를 그릴 산의 정보 리스트
-
-        for mt in self.local_mt_list:
-            data = xml_read.MT_deap_data(mt)
-            if data == -1:
-                continue
-            elif data and "MT_ADMIN_NUM" in data:
-                mt_info.append((mt, data['MT_HIGH']))
-                max_height = max(max_height, float(data['MT_HIGH']))  # 최대 높이 갱신
+        mt_info.clear()
+        for mt_n in self.local_mt_list:
+            mt_info.append((mt_n, self.Mt_list[mt_n]))
+            max_height = max(max_height, float(self.Mt_list[mt_n]))  # 최대 높이 갱신
 
         canvas_height = 400
         canvas_width = 600
         x_offset = 50
         y_offset = 50
 
+        print(mt_info)
         # Draw bars
         for i, (mt_name, mt_height) in enumerate(mt_info):
             x0 = x_offset + i * 50
