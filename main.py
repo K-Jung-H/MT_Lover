@@ -312,8 +312,8 @@ class Application:
         selected_tab = event.widget.select()
         tab_text = event.widget.tab(selected_tab, "text")
         if tab_text == "해당 지역의 산":
-            self.show_map_image(self.now_g_image)
-            pass
+            if self.now_g_image:
+                self.show_map_image(self.now_g_image)
         elif tab_text == "산의 높이 막대 그래프":
 
             self.close_map_image()
