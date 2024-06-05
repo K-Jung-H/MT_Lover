@@ -68,8 +68,13 @@ def handle(msg):
 
     if mountain_data != -1:
         if mountain_data is not None:
+            info_text = str()
             for mt_name in mountain_data["mntn_info"]:
-                noti.sendMessage(chat_id, mt_name)
+                info_text += mt_name + " "
+            print(info_text)
+            noti.sendMessage(chat_id, info_text)
+            # for mt_name in mountain_data["mntn_info"]:
+            #     noti.sendMessage(chat_id, mt_name)
     else:
         noti.sendMessage(chat_id, '모르는 명령어입니다.\n지역명을 입력하세요.')
     # if text.startswith('거래') and len(args)>1:
