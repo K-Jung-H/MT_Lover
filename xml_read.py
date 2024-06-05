@@ -87,6 +87,8 @@ def MT_deap_data(MT_name):
     print(response.url)
     print("HTTP Status:", response.status_code)
 
+
+
     if response.status_code == 200:
         root = ET.fromstring(response.content)
 
@@ -94,6 +96,12 @@ def MT_deap_data(MT_name):
         result_msg = root.find('.//resultMsg').text
         print("API Response Code:", result_code)
         print("API Response Message:", result_msg)
+
+        print(ET.tostring(root, encoding='utf8').decode('utf8'))  # XML 구조 출력
+        # totalCount 요소를 확인하여 데이터 존재 여부를 판단
+        total_count = int(root.find('.//totalCount').text)
+        if total_count == 0:
+            return -2
 
         if result_code == "00":  # NORMAL SERVICE
             items = root.findall('.//item')
@@ -129,5 +137,7 @@ def MT_deap_data(MT_name):
                     return data
         else:
             print(f"Error: {result_msg} (Code: {result_code})")
+            return -1
     else:
         print("OpenAPI 요청이 실패했습니다! 다시 시도해주세요. Status code:", response.status_code)
+        return -1

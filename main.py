@@ -103,7 +103,7 @@ class Application:
             #     "MT_ADMIN_NUM": MT_ADMIN_NUM,
             #     "MT_INFO": MT_INFO
             # }
-            if data == -1:
+            if data == -2:
                 text_area.insert(tk.END, "산 정보 없음" + '\n')
             elif data and "MT_ADMIN_NUM" in data:
                 text_area.insert(tk.END, "산 이름 : " + data["MT_NAME"] + '\n')
@@ -278,7 +278,8 @@ class Application:
 
                 if mt_name not in self.Mt_list.keys():
                     deep_data = xml_read.MT_deap_data(mt_name)
-                    if deep_data is not None:
+                    print(mt_name,"의 deapdata",deep_data)
+                    if deep_data != -2 and deep_data is not None:
                         self.local_mt_list.append(mt_name)
                         self.Mt_list[mt_name] = deep_data['MT_HIGH']
                 else:

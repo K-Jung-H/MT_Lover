@@ -69,14 +69,28 @@ def handle(msg):
     if mountain_data != -1:
         if mountain_data is not None:
             info_text = str()
+            info_text += "=====" + text + "에 존재하는 산 목록=====\n"
             for mt_name in mountain_data["mntn_info"]:
                 info_text += mt_name + " "
-            print(info_text)
+            info_text += "\n"
             noti.sendMessage(chat_id, info_text)
-            # for mt_name in mountain_data["mntn_info"]:
-            #     noti.sendMessage(chat_id, mt_name)
     else:
-        noti.sendMessage(chat_id, '모르는 명령어입니다.\n지역명을 입력하세요.')
+        data = xml_read.MT_deap_data(text)
+        if data != -1:
+            info_text = str()
+            print(text,"의 data",data)
+            if data == -2 or data is None:
+                info_text += "산 정보 없음" + '\n'
+            elif data and "MT_ADMIN_NUM" in data:
+                info_text += "산 이름 : " + data["MT_NAME"] + '\n'
+                info_text += "산 코드 : " + data["MT_CODE"] + '\n'
+                info_text += "산 위치 : " + data["MT_LOCATION"] + '\n'
+                info_text += "산 높이 : " + data["MT_HIGH"] + '\n'
+                info_text += "산 관리 주체 : " + data["MT_ADMIN"] + '\n'
+                info_text += "산 관리 주체 연락처 : " + data["MT_ADMIN_NUM"] + '\n'
+            noti.sendMessage(chat_id, info_text)
+        else:
+            noti.sendMessage(chat_id, '모르는 명령어입니다.\n지역명을 입력하세요.')
     # if text.startswith('거래') and len(args)>1:
     #     print('try to 거래', args[1])
     #     replyAptData(args[1], chat_id, args[2])
