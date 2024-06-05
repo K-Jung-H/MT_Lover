@@ -1,9 +1,14 @@
 import http.client
 import urllib.parse
 import xml.etree.ElementTree as ET
+from tkinter import*
+from io import BytesIO
+import urllib.request
+from PIL import Image,ImageTk
 
+import Googlemap
 
-class TastePlaceAPI:
+class Food_Finder_API:
     def __init__(self):
         self.api_key = '9011fc15298c4ac68dee0da375463fa2'
         self.server = "openapi.gg.go.kr"
@@ -63,13 +68,24 @@ class TastePlaceAPI:
 
             # 연결 닫기
             conn.close()
-            print(places)
+            #print(places)
             return places
 
         else:
             conn.close()
-            raise Exception("OpenAPI 요청이 실패했습니다! 다시 시도해주세요.")
+            raise None
 
-
-api = TastePlaceAPI()
-api.get_taste_places('시흥시')
+#
+# api = TastePlaceAPI()
+# datas = api.get_taste_places('성남시')
+#
+#
+# window=Tk()
+# window.geometry("500x500+500+200")
+#
+# img=Gmap_Test.print_map_by_xy(datas[0]['REFINE_WGS84_LAT'], datas[0]['REFINE_WGS84_LOGT'])
+# image=ImageTk.PhotoImage(img)
+#
+# Label(window, image=image, height=400,width=400).pack()
+#
+# window.mainloop()
