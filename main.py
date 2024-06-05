@@ -1,10 +1,17 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import *
+
+import urllib3
+
 import xml_read
 import Gmap_Test
 from PIL import Image, ImageTk
 import Weather_Test
 import image_search
+# import noti
+import teller
+# import telepot
 
 MT_data = []
 
@@ -66,6 +73,9 @@ class Application:
         self.create_bar_chart()
 
         self.now_g_image = ""
+
+        self.B_Tele = Button(self.window, text="텔레그렘", width=10, height=1, command=self.pressedTele)
+        self.B_Tele.place(x=50, y=50)
 
         # Configuring grid weights to ensure proper resizing behavior
         self.window.grid_columnconfigure(0, weight=1)
@@ -330,6 +340,10 @@ class Application:
 
     def run(self):
         self.window.mainloop()
+
+    def pressedTele(self):
+        teller.run()
+        pass
 
 if __name__ == "__main__":
     app = Application()
