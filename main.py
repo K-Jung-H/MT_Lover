@@ -28,7 +28,7 @@ class Application:
 
         self.store_data = {}
         self.local_store_name_list = []
-        self.food_img = ''
+        self.food_img = None
 
         # Creating and placing the top entry with a search button
         self.entry = tk.Entry(self.window, width=20, font=('Helvetica', 16))
@@ -202,7 +202,7 @@ class Application:
         #     labelText = "Tab 2에 표시할 다른 특정 텍스트"
         # elif tab == self.tab3:
         #     labelText = "Tab 3에 표시할 다른 특정 텍스트"
-
+        #
         # label = tk.Label(tab, text=labelText, font=('Helvetica', 12), bg='white', fg='black')
         # label.grid(row=0, column=0, padx=20, pady=20, sticky='n')
 
@@ -287,15 +287,28 @@ class Application:
 
                 store_zip_code = store_data["REFINE_ZIP_CD"] if store_data["REFINE_ZIP_CD"] is not None else ''
                 text_area.insert(tk.END, "가게 우편 번호: " + store_zip_code + '\n')
+
+                food_image_link = self.image_finder.get_image_link(store_name)
+
+                url = food_image_link[1]
+                with urllib.request.urlopen(url) as u:
+                    raw_data = u.read()
+
+                food_im = Image.open(BytesIO(raw_data)).resize((320, 200))
+                self.food_img = ImageTk.PhotoImage(food_im)
+                self.show_food_image(self.food_img)
+
+
             else:
-                text_area.insert(tk.END, "항목을 선택해주세요 " +  + '\n')
+                text_area.insert(tk.END, "항목을 선택해주세요 " + '\n')
+
 
 
         # Listbox 설정
         listbox_frame = tk.Frame(tab, bg='white')
         listbox_frame.grid(row=1, column=0, sticky='nsew', padx=20, pady=0)
 
-        listbox = tk.Listbox(listbox_frame, height=5)
+        listbox = tk.Listbox(listbox_frame,height=5)
         listbox.pack(side=tk.LEFT, fill='both', expand=True)
         listbox.bind('<<ListboxSelect>>', on_item_select)
 
@@ -306,35 +319,30 @@ class Application:
         listbox.config(yscrollcommand=scrollbar.set)
 
         # 텍스트 출력 프레임 설정
-        text_frame = tk.Frame(tab, bg='white', height=100)
-        text_frame.grid(row=2, column=0, sticky='nsew', padx=20, pady=0)
+        text_frame = tk.Frame(tab, bg='white')
+        text_frame.grid(row=2, column=0, sticky='nsew', padx=20, pady=20)
 
-        text_area = tk.Text(text_frame, width=20,height=10)
-        text_area.pack(fill='both')
+        text_area = tk.Text(text_frame, height=5)
+        text_area.pack(fill='both', expand=True)
 
+        # 이미지 프레임 설정
+        self.image_frame = tk.Frame(tab, bg='white', width=600, height=100)
+        self.image_frame.grid(row=0, column=1, rowspan=4, sticky='nsew', padx=20, pady=20)
 
-
-        # food_image_link = self.image_finder.get_image_link('한국 공학 대학교')
-        #
-        # url = food_image_link[1]
-        # with urllib.request.urlopen(url) as u:
-        #     raw_data = u.read()
-        #
-        # food_im = Image.open(BytesIO(raw_data))
-        # self.food_img = ImageTk.PhotoImage(food_im)
-
-
+        if self.food_img is not None:
+            self.food_picture_label.configure(image=self.food_img)
+            self.food_picture_label.image = self.food_img  # Keep a reference to avoid garbage collection
+            self.food_picture_label.place(x=20, y=400)
 
 
 
         # 그리드 레이아웃 설정
         tab.grid_columnconfigure(0, weight=1)
         tab.grid_columnconfigure(1, weight=1)
-        tab.grid_rowconfigure(0, weight=1)
-        tab.grid_rowconfigure(1, weight=1)
-        tab.grid_rowconfigure(2, weight=1)
-        tab.grid_rowconfigure(3, weight=1)
-        tab.grid_rowconfigure(3, weight=1)
+        # tab.grid_rowconfigure(0, weight=1)
+        # tab.grid_rowconfigure(1, weight=1)
+        # tab.grid_rowconfigure(2, weight=1)
+        # tab.grid_rowconfigure(3, weight=1)
         return listbox
 
     def show_food_map_image(self, img):
@@ -343,13 +351,19 @@ class Application:
         self.food_map_label.image = tk_img  # Keep a reference to avoid garbage collection
         self.food_map_label.place(x=375, y=260)
 
-        # self.food_picture_label.configure(image=self.food_img)
-        # self.food_picture_label.image = self.food_img  # Keep a reference to avoid garbage collection
-        # self.food_picture_label.place(x=10, y=10)
+
+    def show_food_image(self, img):
+        if img is not None:
+            self.food_picture_label.configure(image=img)
+            self.food_picture_label.image = img  # Keep a reference to avoid garbage collection
+            self.food_picture_label.place(x=20, y=400)
+
+
 
     def close_map_image(self):
         self.map_label.place_forget()
         self.food_map_label.place_forget()
+        self.food_picture_label.place_forget()
 
     def SIGUN_search(self):
         self.local_store_name_list.clear()
@@ -446,6 +460,8 @@ class Application:
 
             if self.now_f_image:
                 self.show_food_map_image(self.now_f_image)
+                self.show_food_image(self.food_img)
+
 
 
     def pressedTele(self):
