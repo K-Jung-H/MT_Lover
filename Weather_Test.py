@@ -1,3 +1,4 @@
+import time
 from datetime import datetime, timedelta
 import json
 import pandas as pd
@@ -16,8 +17,10 @@ def get_weather_data(nx, ny):
 
     # now = "2024-06-03 22:00:00"
 
+    start = time.time()
     # 엑셀 파일 로드
     data = pd.read_excel('location_grids.xlsx')
+    print("read excel time :", time.time() - start)
 
 
     # 경도와 위도를 받아서 오차 범위 내에 있는 x, y 좌표를 반환하는 함수

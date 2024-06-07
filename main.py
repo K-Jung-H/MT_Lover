@@ -1,3 +1,4 @@
+import time
 import tkinter as tk
 from tkinter import ttk
 from tkinter import *
@@ -91,7 +92,9 @@ class Application:
 
             # 선택된 항목의 텍스트 가져오기
             selected_item = event.widget.get(selected_index)
+            start = time.time()  # 시작 시간 저장
             data = xml_read.MT_deap_data(selected_item)
+            print("deap data read time :", time.time() - start)  # 현재시각 - 시작시간 = 실행 시간
             text_area.delete('1.0', tk.END)  # 텍스트 영역 초기화
 
             # data = {
@@ -113,16 +116,22 @@ class Application:
                 text_area.insert(tk.END, "산 관리 주체 : " + data["MT_ADMIN"] + '\n')
                 text_area.insert(tk.END, "산 관리 주체 연락처 : " + data["MT_ADMIN_NUM"] + '\n')
                 print(data["MT_LOCATION"][0:7] + ' ' + data["MT_NAME"])
+                start = time.time()
                 # Show the map
                 img = Gmap_Test.print_map(data["MT_NAME"])
                 self.now_g_image = Gmap_Test.print_map(data["MT_NAME"])
                 self.show_map_image(img)
+                print("show map image time :", time.time() - start)
 
+                start = time.time()
                 mt_dx,mt_dy = Gmap_Test.find_XY(data["MT_NAME"])
+                print("find XY time :", time.time() - start)
+                start = time.time()
                 print(mt_dx,mt_dy)
                 W_data = Weather_Test.get_weather_data(mt_dx,mt_dy)
                 print(W_data)
-
+                print("get weather data time :", time.time() - start)
+                start = time.time()
                 time_str = W_data[4].split()[1]  # 문자열을 공백을 기준으로 분리하고 두 번째 요소 선택
                 # 시간 부분을 정수로 변환하여 비교
                 hour = int(time_str.split(':')[0])
@@ -197,6 +206,7 @@ class Application:
                 weather_label = tk.Label(self.image_weather, text=now_time_text, font=('Helvetica', 8), bg='white',
                                          fg='black')
                 weather_label.place(relx=0.5, rely=0.9, anchor='w')  # 중앙에 배치
+                print("weather image time :", time.time() - start)
 
 
         # Label 위젯을 추가하여 특정 텍스트 출력
