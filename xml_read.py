@@ -132,6 +132,7 @@ def MT_deap_data(MT_name):
                         "MT_HIGH" : MT_HIGH,
                         "MT_ADMIN" : MT_ADMIN,
                         "MT_ADMIN_NUM" : MT_ADMIN_NUM,
+                        "MT_TOP_100_REASON" : MT_TOP_100_REASON,
                         "MT_INFO" : MT_INFO
                     }
                     return data

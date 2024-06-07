@@ -12,6 +12,8 @@ import Weather_Test
 import image_search
 import Food_Finder
 import teller
+import spam
+import Gmail
 
 
 class Application:
@@ -87,7 +89,10 @@ class Application:
         self.now_f_image = ""
 
         self.B_Tele = Button(self.window, text="텔레그렘", width=10, height=1, command=self.pressedTele)
-        self.B_Tele.place(x=50, y=50)
+        self.B_Tele.place(x=50, y=30)
+
+        self.GM_button = Button(self.window, text="G-MAIL", width=10, height=1, command=self.pressedGM)
+        self.GM_button.place(x=150, y=30)
 
         # Configuring grid weights to ensure proper resizing behavior
         self.window.grid_columnconfigure(0, weight=1)
@@ -95,6 +100,8 @@ class Application:
         self.window.grid_columnconfigure(2, weight=1)
         self.window.grid_rowconfigure(1, weight=1)
         self.window.grid_rowconfigure(2, weight=1)
+
+        self.email_sender = Gmail.EmailSender(username="jay81385136@gmail.com", password="vmkw shgc jzmw fkoz")
 
     def create_mt_tab_content(self, tab):
         def on_item_select(event):
@@ -123,6 +130,7 @@ class Application:
 
                 mt_dx,mt_dy = Googlemap.find_XY(data["MT_NAME"])
                 print(mt_dx,mt_dy)
+                mt_dx, mt_dy = spam.mapToGrid(mt_dx,mt_dy)
                 W_data = Weather_Test.get_weather_data(mt_dx,mt_dy)
                 print(W_data)
 
@@ -467,6 +475,45 @@ class Application:
     def pressedTele(self):
         teller.run()
         pass
+
+    def pressedGM(self):
+        self.email_window = tk.Toplevel(self.window)
+        self.email_window.geometry("200x150")
+
+        self.email_label = tk.Label(self.email_window, text="G-Mail:")
+        self.email_label.pack()
+
+        self.email_entry = tk.Entry(self.email_window)
+        self.email_entry.pack()
+
+        self.mountain_label = tk.Label(self.email_window, text="산 이름:")
+        self.mountain_label.pack()
+
+        self.mountain_entry = tk.Entry(self.email_window)
+        self.mountain_entry.pack()
+
+        self.confirm_button = tk.Button(self.email_window, text="확인", command=lambda: self.go_mail(self.email_entry.get(),self.mountain_entry.get()))
+        self.confirm_button.pack()
+
+    def go_mail(self,mail,MT_name):
+        data = xml_read.MT_deap_data(MT_name)
+        print(data)
+        text = str()
+
+        text += "산 이름 : " + data["MT_NAME"] + '\n'
+        text += "산 코드 : " + data["MT_CODE"] + '\n'
+        text += "산 위치 : " + data["MT_LOCATION"] + '\n'
+        text += "산 높이 : " + data["MT_HIGH"] + '\n'
+        text += "산 관리 주체 : " + data["MT_ADMIN"] + '\n'
+        text += "산 관리 주체 연락처 : " + data["MT_ADMIN_NUM"] + '\n'
+        text += "산 정보 : " + data["MT_TOP_100_REASON"] + '\n'
+
+        self.email_sender.send_email(
+            subject="Mountain Information",
+            sender="jay81385136@gmail.com",
+            recipient=mail,
+            plain_text_message=text
+        )
 
     def run(self):
         self.window.mainloop()

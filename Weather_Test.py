@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import json
 import pandas as pd
 import requests
@@ -17,28 +17,56 @@ def get_weather_data(nx, ny):
     # now = "2024-06-03 22:00:00"
 
     # 엑셀 파일 로드
-    data = pd.read_excel('location_grids.xlsx')
-
-
-    # 경도와 위도를 받아서 오차 범위 내에 있는 x, y 좌표를 반환하는 함수
-    def find_grid(longitude, latitude, tolerance=1):
-        matched_grids = []
-        lon_min = longitude - tolerance
-        lon_max = longitude + tolerance
-        lat_min = latitude - tolerance
-        lat_max = latitude + tolerance
-        filtered_data = data[
-            (data['경도(초/100)'] >= lon_min) & (data['경도(초/100)'] <= lon_max) &
-            (data['위도(초/100)'] >= lat_min) & (data['위도(초/100)'] <= lat_max)
-            ]
-        for _, row in filtered_data.iterrows():
-            matched_grids.append((row['x'], row['y']))
-        return matched_grids
+    # data = pd.read_excel('location_grids.xlsx')
+    #
+    #
+    # # 경도와 위도를 받아서 오차 범위 내에 있는 x, y 좌표를 반환하는 함수
+    # def find_grid(longitude, latitude, tolerance=1):
+    #     matched_grids = []
+    #     lon_min = longitude - tolerance
+    #     lon_max = longitude + tolerance
+    #     lat_min = latitude - tolerance
+    #     lat_max = latitude + tolerance
+    #     filtered_data = data[
+    #         (data['경도(초/100)'] >= lon_min) & (data['경도(초/100)'] <= lon_max) &
+    #         (data['위도(초/100)'] >= lat_min) & (data['위도(초/100)'] <= lat_max)
+    #         ]
+    #     for _, row in filtered_data.iterrows():
+    #         matched_grids.append((row['x'], row['y']))
+    #     return matched_grids
 
 
     # 현재 시간을 기준으로 base_date와 base_time 설정
-    base_date = now.strftime("%Y%m%d")
-    base_time = (now - timedelta(hours=1)).strftime("%H00")  # 현재 시간 기준으로 1시간 전
+    # base_date = now.strftime("%Y%m%d")
+    # base_time = (now - timedelta(hours=1)).strftime("%H00")  # 현재 시간 기준으로 1시간 전
+
+    # print(base_time,base_date)
+
+    # base_time = 2100
+    # base_date = 20240607
+    now = datetime.now()
+    today = datetime.today().strftime("%Y%m%d")
+    y = date.today() - timedelta(days=1)
+    yesterday = y.strftime("%Y%m%d")
+
+    # now = "2024-06-03 22:00:00"
+    if now.minute < 45:  # base_time와 base_date 구하는 함수
+        if now.hour == 0:
+            base_time = "2330"
+            base_date = yesterday
+        else:
+            pre_hour = now.hour - 1
+            if pre_hour < 10:
+                base_time = "0" + str(pre_hour) + "30"
+            else:
+                base_time = str(pre_hour) + "30"
+            base_date = today
+    else:
+        if now.hour < 10:
+            base_time = "0" + str(now.hour) + "30"
+        else:
+            base_time = str(now.hour) + "30"
+        base_date = today
 
     # API 관련 코드
     api_key = 'kqMzwvJlxICdXrO0eXEHyXirL/huIAmVPWway9BnnQKyFdi4KSrxyyF71z60Cn5avZSEp7U3W5MBXfls1Z24BA=='
@@ -74,6 +102,8 @@ def get_weather_data(nx, ny):
 
     # 현재 시각의 정각 + 1시간 정보만 출력
     next_hour_str = (now + timedelta(hours=1)).strftime("%H00")
+
+    # next_hour_str = base_time + 100
 
     r_data = []
 
@@ -140,14 +170,15 @@ def get_weather_data(nx, ny):
     else:
         print(f"현재 시간의 정각 + 1시간({next_hour_str})에 대한 정보가 없습니다.")
 
-    # 경도와 위도를 입력 받아서 오차 범위 내에 있는 격자 좌표 출력
-    longitude = 126868  # 예시 경도 값 (초/100)
-    latitude = 37475  # 예시 위도 값 (초/100)
-    tolerance = 0.1  # 오차 범위
-
-    matched_coordinates = find_grid(longitude, latitude, tolerance)
-    print(f"오차 범위 {tolerance} 내에서 매칭된 좌표: {matched_coordinates}")
+    # # 경도와 위도를 입력 받아서 오차 범위 내에 있는 격자 좌표 출력
+    # longitude = 126868  # 예시 경도 값 (초/100)
+    # latitude = 37475  # 예시 위도 값 (초/100)
+    # tolerance = 0.1  # 오차 범위
+    #
+    # matched_coordinates = find_grid(longitude, latitude, tolerance)
+    # print(f"오차 범위 {tolerance} 내에서 매칭된 좌표: {matched_coordinates}")
 
     r_data.append(str(now))
+    # r_data.append(str("2024-06-07 22:00:00"))
 
     return r_data
