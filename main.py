@@ -1,6 +1,7 @@
 import urllib.request
 import tkinter as tk
 from tkinter import ttk
+from tkinter import *
 from tkinter import Label
 import xml_read
 import Googlemap
@@ -10,7 +11,7 @@ import Weather_Test
 
 import image_search
 import Food_Finder
-
+import teller
 
 
 class Application:
@@ -85,6 +86,9 @@ class Application:
         self.now_g_image = ""
         self.now_f_image = ""
 
+        self.B_Tele = Button(self.window, text="텔레그렘", width=10, height=1, command=self.pressedTele)
+        self.B_Tele.place(x=50, y=50)
+
         # Configuring grid weights to ensure proper resizing behavior
         self.window.grid_columnconfigure(0, weight=1)
         self.window.grid_columnconfigure(1, weight=2)
@@ -102,7 +106,7 @@ class Application:
             data = xml_read.MT_deap_data(selected_item)
             text_area.delete('1.0', tk.END)  # 텍스트 영역 초기화
 
-            if data == -1:
+            if data == -2:
                 text_area.insert(tk.END, "산 정보 없음" + '\n')
             elif data and "MT_ADMIN_NUM" in data:
                 text_area.insert(tk.END, "산 이름 : " + data["MT_NAME"] + '\n')
@@ -248,39 +252,43 @@ class Application:
     def create_food_tab_content(self, tab):
 
         def on_item_select(event):
-
             # 현재 선택된 항목의 인덱스 가져오기
             selected_index = event.widget.curselection()
 
-            # 선택된 항목의 텍스트 가져오기
-            selected_store = event.widget.get(selected_index)
+            if selected_index:  # 선택된 항목이 있을 경우
+                selected_store = event.widget.get(selected_index)
+            else:
+                selected_store = None
 
             text_area.delete('1.0', tk.END)  # 텍스트 영역 초기화
 
-            store_data = self.store_data[selected_store]
-            store_x, store_y = store_data['REFINE_WGS84_LAT'], store_data['REFINE_WGS84_LOGT']
-                # Show the map
-            img = Googlemap.print_map_by_xy(store_x,store_y)
-            self.now_f_image = img
-            self.show_map_image(img)
+            if selected_store is not None:
+                store_data = self.store_data[selected_store]
+                store_x, store_y = store_data['REFINE_WGS84_LAT'], store_data['REFINE_WGS84_LOGT']
+                    # Show the map
+                img = Googlemap.print_map_by_xy(store_x,store_y)
+                self.now_f_image = img
+                self.show_food_map_image(img)
 
-            store_name = store_data["RESTRT_NM"] if store_data["RESTRT_NM"] is not None else ''
-            text_area.insert(tk.END, "가게 이름: " + store_name + '\n')
+                store_name = store_data["RESTRT_NM"] if store_data["RESTRT_NM"] is not None else ''
+                text_area.insert(tk.END, "가게 이름: " + store_name + '\n')
 
-            store_num = store_data["TASTFDPLC_TELNO"] if store_data["TASTFDPLC_TELNO"] is not None else ''
-            text_area.insert(tk.END, "가게 연락처: " + store_num + '\n')
+                store_num = store_data["TASTFDPLC_TELNO"] if store_data["TASTFDPLC_TELNO"] is not None else ''
+                text_area.insert(tk.END, "가게 연락처: " + store_num + '\n')
 
-            store_food = store_data["REPRSNT_FOOD_NM"] if store_data["REPRSNT_FOOD_NM"] is not None else ''
-            text_area.insert(tk.END, "가게 대표 음식: " + store_food + '\n')
+                store_food = store_data["REPRSNT_FOOD_NM"] if store_data["REPRSNT_FOOD_NM"] is not None else ''
+                text_area.insert(tk.END, "가게 대표 음식: " + store_food + '\n')
 
-            store_road_address = store_data["REFINE_ROADNM_ADDR"] if store_data["REFINE_ROADNM_ADDR"] is not None else ''
-            text_area.insert(tk.END, "가게 도로명 주소: " + store_road_address + '\n')
+                store_road_address = store_data["REFINE_ROADNM_ADDR"] if store_data["REFINE_ROADNM_ADDR"] is not None else ''
+                text_area.insert(tk.END, "가게 도로명 주소: " + store_road_address + '\n')
 
-            store_address = store_data["REFINE_LOTNO_ADDR"] if store_data["REFINE_LOTNO_ADDR"] is not None else ''
-            text_area.insert(tk.END, "가게 지번 주소: " + store_address + '\n')
+                store_address = store_data["REFINE_LOTNO_ADDR"] if store_data["REFINE_LOTNO_ADDR"] is not None else ''
+                text_area.insert(tk.END, "가게 지번 주소: " + store_address + '\n')
 
-            store_zip_code = store_data["REFINE_ZIP_CD"] if store_data["REFINE_ZIP_CD"] is not None else ''
-            text_area.insert(tk.END, "가게 우편 번호: " + store_zip_code + '\n')
+                store_zip_code = store_data["REFINE_ZIP_CD"] if store_data["REFINE_ZIP_CD"] is not None else ''
+                text_area.insert(tk.END, "가게 우편 번호: " + store_zip_code + '\n')
+            else:
+                text_area.insert(tk.END, "항목을 선택해주세요 " +  + '\n')
 
 
         # Listbox 설정
@@ -361,7 +369,9 @@ class Application:
 
                 if mt_name not in self.Mt_list.keys():
                     deep_data = xml_read.MT_deap_data(mt_name)
-                    if deep_data is not None:
+                    print(type(deep_data))
+                    # print(deep_data.keys())
+                    if deep_data != -2 and deep_data is not None:
                         self.local_mt_list.append(mt_name)
                         self.Mt_list[mt_name] = deep_data['MT_HIGH']
                 else:
@@ -423,15 +433,24 @@ class Application:
         tab_text = event.widget.tab(selected_tab, "text")
         if tab_text == "해당 지역의 산":
             self.close_map_image()
+
             if self.now_g_image:
                 self.show_map_image(self.now_g_image)
+
         elif tab_text == "산의 높이 막대 그래프":
             self.close_map_image()
             self.create_bar_chart()
+
         elif tab_text == '인근 맛집':
             self.close_map_image()
+
             if self.now_f_image:
                 self.show_food_map_image(self.now_f_image)
+
+
+    def pressedTele(self):
+        teller.run()
+        pass
 
     def run(self):
         self.window.mainloop()

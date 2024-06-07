@@ -13,21 +13,16 @@ from datetime import date, datetime, timedelta
 import traceback
 
 key = 'sea100UMmw23Xycs33F1EQnumONR%2F9ElxBLzkilU9Yr1oT4TrCot8Y2p0jyuJP72x9rG9D8CN5yuEs6AS2sAiw%3D%3D'
-#key = 'kqMzwvJlxICdXrO0eXEHyXirL/huIAmVPWway9BnnQKyFdi4KSrxyyF71z60Cn5avZSEp7U3W5MBXfls1Z24BA=='
-
-# 서버 정보 및 URL
-#baseurl = "http://apis.data.go.kr/1400000/service/cultureInfoService2/mntInfoOpenAPI2"
-
-TOKEN = '7212755542:AAFtPYLlUmDACm8nE4oF8C7lBvJc17wEATg'
-
+TOKEN = '7486427871:AAHANOAhNoBGZtvt7X0i9lWbemzpO997o8s'
 MAX_MSG_LENGTH = 300
 baseurl = 'http://openapi.molit.go.kr:8081/OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc/getRTMSDataSvcRHTrade?ServiceKey='+key
 bot = telepot.Bot(TOKEN)
 
-def getData(loc_param, date_param):
+def getData():
     res_list = []
-    url = baseurl+'&LAWD_CD='+loc_param+'&DEAL_YMD='+date_param
-    #print(url)
+    # url = baseurl+'&LAWD_CD='+loc_param+'&DEAL_YMD='+date_param
+    url = "http://apis.data.go.kr/1400000/service/cultureInfoService2/mntInfoOpenAPI2?searchWrd=%EA%B4%91%EA%B5%90%EC%82%B0&pageNo=1&numOfRows=5&ServiceKey=kqMzwvJlxICdXrO0eXEHyXirL%2FhuIAmVPWway9BnnQKyFdi4KSrxyyF71z60Cn5avZSEp7U3W5MBXfls1Z24BA%3D%3D"
+    # print(url)
     res_body = urlopen(url).read()
     #print(res_body)
     soup = BeautifulSoup(res_body, 'html.parser')
@@ -36,8 +31,8 @@ def getData(loc_param, date_param):
         item = re.sub('<.*?>', '|', item.text)
         parsed = item.split('|')
         try:
-            #row = parsed[3]+'/'+parsed[6]+'/'+parsed[7]+', '+parsed[4]+' '+parsed[5]+', '+parsed[8]+'m², '+parsed[11]+'F, '+parsed[1].strip()+'만원\n'
-            row = parsed[6]+', '+parsed[14]+' '+parsed[9]+' '+parsed[10]+' '+parsed[5]+'동, '+parsed[13]+'m², '+parsed[17]+'F, '+parsed[1].strip() + '만원\n'
+            row = parsed[6] + ', ' + parsed[0] + ', ' + parsed[1] + '\t' + parsed[2] + ', ' + parsed[3] + ', ' + parsed[4].strip() + '\n'
+            # row = parsed[6] + ', ' + parsed[14] + ' ' + parsed[9] + ' ' + parsed[10] + ' ' + parsed[5] + '동, ' + parsed[13] + 'm², ' + parsed[17] + 'F, ' + parsed[1].strip() + '만원\n'
         except IndexError:
             row = item.replace('|', ',')
 
@@ -51,7 +46,7 @@ def sendMessage(user, msg):
     except:
         traceback.print_exc(file=sys.stdout)
 
-def run(date_param, param='11710'):
+def run():
     conn = sqlite3.connect('logs.db')
     cursor = conn.cursor()
     cursor.execute('CREATE TABLE IF NOT EXISTS logs( user TEXT, log TEXT, PRIMARY KEY(user, log) )')
@@ -60,31 +55,28 @@ def run(date_param, param='11710'):
     user_cursor = sqlite3.connect('users.db').cursor()
     user_cursor.execute('CREATE TABLE IF NOT EXISTS users( user TEXT, location TEXT, PRIMARY KEY(user, location) )')
     user_cursor.execute('SELECT * from users')
-    #
-    # print('aaaaaaaaaaaaaaaaaaaaaaaaaaa')
-    # print(user_cursor.fetchall())
-    # print('aaaaaaaaaaaaaaaaaaaaaaaaaaa')
-    # for data in user_cursor.fetchall():
-    #     user, param = data[0], data[1]
-    #     print(user, date_param, param)
-    #     res_list = getData( param, date_param )
-    #     msg = ''
-    #     for r in res_list:
-    #         try:
-    #             cursor.execute('INSERT INTO logs (user,log) VALUES ("%s", "%s")'%(user,r))
-    #         except sqlite3.IntegrityError:
-    #             # 이미 해당 데이터가 있다는 것을 의미합니다.
-    #             pass
-    #         else:
-    #             print( str(datetime.now()).split('.')[0], r )
-    #             if len(r+msg)+1>MAX_MSG_LENGTH:
-    #                 sendMessage( user, msg )
-    #                 msg = r+'\n'
-    #             else:
-    #                 msg += r+'\n'
-    #     if msg:
-    #         sendMessage( user, msg )
-    # print('BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB')
+
+    for data in user_cursor.fetchall():
+        user, param = data[0], data[1]
+        # print(user, date_param, param)
+        res_list = getData()
+        print(res_list)
+        msg = ''
+        for r in res_list:
+            try:
+                cursor.execute('INSERT INTO logs (user,log) VALUES ("%s", "%s")'%(user,r))
+            except sqlite3.IntegrityError:
+                # 이미 해당 데이터가 있다는 것을 의미합니다.
+                pass
+            else:
+                print( str(datetime.now()).split('.')[0], r )
+                if len(r+msg)+1>MAX_MSG_LENGTH:
+                    sendMessage( user, msg )
+                    msg = r+'\n'
+                else:
+                    msg += r+'\n'
+        if msg:
+            sendMessage( user, msg )
     conn.commit()
 
 if __name__=='__main__':
@@ -95,4 +87,4 @@ if __name__=='__main__':
 
     pprint( bot.getMe() )
 
-    run(current_month)
+    run()

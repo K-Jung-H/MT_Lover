@@ -29,12 +29,22 @@ def MT_data_read(SIGUN_NM):
     # 연결 설정 및 API 요청 보내기
     conn = http.client.HTTPSConnection(server)
     conn.request("GET", url)
+    print(url)
     # 응답 받기
     response = conn.getresponse()
     print(response.status)
+    print(type(response.status))
     if response.status == 200:
         response_data = response.read()
         root = ET.fromstring(response_data)  # XML 파싱 후 root 정의
+        print(type(root))
+        print(root)
+        print(type(root))
+        print(ET.tostring(root, encoding='utf8').decode('utf8'))  # XML 구조 출력
+
+        # XML 구조를 확인한 후 정확한 태그를 사용하여 데이터 추출
+        if root.find('.//MESSAGE') is not None and root.find('.//MESSAGE').text == "해당하는 데이터가 없습니다.":
+            return -1
         place_direction = root.find('.//REGION_DIV_NM').text
         mntn_info = root.find('.//MNTN_INFO').text.split(', ')  # MNTN_INFO 요소의 내용을 리스트로 분할하여 mntn_info에 저장
         local_MT_num = int(root.find('.//MNTN_CNT').text)  # MNTN_CNT 요소의 내용을 정수형으로 변환하여 저장
@@ -47,9 +57,9 @@ def MT_data_read(SIGUN_NM):
             "mntn_info": mntn_info,
         }
         return data
-
     else:
         print("OpenAPI 요청이 실패했습니다! 다시 시도해주세요.")
+        return -1
 
     # 연결 닫기
     conn.close()
@@ -74,7 +84,10 @@ def MT_deap_data(MT_name):
 
     # API 요청 보내기 (verify=False는 SSL 인증서 검증을 비활성화합니다)
     response = requests.get(url, params=params, verify=False)
+    print(response.url)
     print("HTTP Status:", response.status_code)
+
+
 
     if response.status_code == 200:
         root = ET.fromstring(response.content)
@@ -83,6 +96,12 @@ def MT_deap_data(MT_name):
         result_msg = root.find('.//resultMsg').text
         print("API Response Code:", result_code)
         print("API Response Message:", result_msg)
+
+        print(ET.tostring(root, encoding='utf8').decode('utf8'))  # XML 구조 출력
+        # totalCount 요소를 확인하여 데이터 존재 여부를 판단
+        total_count = int(root.find('.//totalCount').text)
+        if total_count == 0:
+            return -2
 
         if result_code == "00":  # NORMAL SERVICE
             items = root.findall('.//item')
@@ -118,5 +137,7 @@ def MT_deap_data(MT_name):
                     return data
         else:
             print(f"Error: {result_msg} (Code: {result_code})")
+            return -1
     else:
         print("OpenAPI 요청이 실패했습니다! 다시 시도해주세요. Status code:", response.status_code)
+        return -1
